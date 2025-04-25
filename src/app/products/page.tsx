@@ -6,7 +6,7 @@ import { GoPlus } from "react-icons/go";
 import { TbMinus } from "react-icons/tb";
 import { errorToast, successToast } from "@/components/sonner";
 import { axiosInstance } from "@/utils/axios";
-import { getTokenCookie, getUserIdCookie } from "@/utils/cookie";
+import { getTokenCookie } from "@/utils/cookie";
 import { EarningRuleType } from "@/utils/interface";
 import { appConfig } from "@/configs/appConfig";
 import { Loader } from "@/components/loader";
@@ -43,7 +43,6 @@ const Products = () => {
 
     const totalAmount = product.price * quantity;
 
-    const userId = getUserIdCookie();
     const token = getTokenCookie();
     setLoading(true); // Start loading
 
@@ -52,7 +51,7 @@ const Products = () => {
       .post(
         "/v1/customers/loyalty-points",
         {
-          userExternalId: userId,
+          userExternalId: appConfig.userId,
           loyaltyProgramId: appConfig.loyaltyProgramId,
           amount: totalAmount,
           earningType: EarningRuleType.Redemption,

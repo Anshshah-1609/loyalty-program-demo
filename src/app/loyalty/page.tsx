@@ -23,12 +23,12 @@ import {
   type LoyaltyPoints,
 } from "@/utils/interface";
 import { dayMonthYearFormatter, getFormattedAmount } from "@/utils/helper";
-import { getTokenCookie, getUserIdCookie } from "@/utils/cookie";
+import { getTokenCookie } from "@/utils/cookie";
 import { axiosInstance } from "@/utils/axios";
 import { appConfig } from "@/configs/appConfig";
 
 const LoyaltyPointsHistory = () => {
-  const [pointsData, setPointsData] = useState<LoyaltyPoints[]>([]);
+  const [pointsData, setPointsData] = useState<LoyaltyPoints[]>([]);  
   const [page, setPage] = useState({
     pageIndex: 0,
     pageSize: 10,
@@ -63,14 +63,13 @@ const LoyaltyPointsHistory = () => {
   }, [redeemPointsRes]);
 
   const fetchPointsHistory = () => {
-    const userId = getUserIdCookie();
     const token = getTokenCookie();
 
     // Fetch points history logic
     setIsPointsLoading(true);
     axiosInstance
       .get(
-        `/v1/customers/${userId}/loyalty-points?page=${
+        `/v1/customers/${appConfig.userId}/loyalty-points?page=${
           page.pageIndex + 1
         }&limit=${page.pageSize}`,
         {
@@ -92,11 +91,10 @@ const LoyaltyPointsHistory = () => {
   const fetchStatistics = async () => {
     // Fetching statistics data
     setIsLoading(true);
-    const userId = getUserIdCookie();
     const token = getTokenCookie();
 
     axiosInstance
-      .get(`/v1/customers/${userId}/statistics`, {
+      .get(`/v1/customers/${appConfig.userId}/statistics`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then(({ data: response }) => {
@@ -255,7 +253,6 @@ const LoyaltyPointsHistory = () => {
   };
 
   const handleRedeemConfirmation = () => {
-    const userId = getUserIdCookie();
     const token = getTokenCookie();
     setShowConfirmation(false);
 
@@ -265,7 +262,7 @@ const LoyaltyPointsHistory = () => {
       .post(
         "/v1/customers/redeem-points",
         {
-          userExternalId: userId,
+          userExternalId: appConfig.userId,
           loyaltyProgramId: appConfig.loyaltyProgramId,
           pointsToRedeem: pointsToRedeem,
           additionalInfo: additionalInfo,

@@ -4,11 +4,7 @@ import { useEffect } from "react";
 import { IoMdPerson } from "react-icons/io";
 import Link from "next/link";
 import { axiosInstance } from "@/utils/axios";
-import {
-  getTokenCookie,
-  setTokenCookie,
-  setUserIdCookie,
-} from "@/utils/cookie";
+import { getTokenCookie, setTokenCookie } from "@/utils/cookie";
 import { appConfig } from "@/configs/appConfig";
 
 export default function Header() {
@@ -24,9 +20,6 @@ export default function Header() {
           setTokenCookie(response.data.accessToken);
         });
     }
-  }, []);
-  useEffect(() => {
-    setUserIdCookie("USR202504247890");
   }, []);
 
   return (
