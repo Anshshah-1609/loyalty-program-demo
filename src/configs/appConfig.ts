@@ -1,7 +1,8 @@
 export const appConfig = {
-  apiBaseUrl: "http://localhost:4001/api",
-  clientId: "2018f10d-5814-4851-ae0e-12f66aad1af4",
+  // apiBaseUrl: "http://localhost:4001/api",
+  apiBaseUrl: "https://demovoucherapi.ogstack.com//api",
+  clientId: "b0ab5f37-edb8-4ebf-bdfa-f11f0ef56d7d",
   clientSecret:
-    "C9A2D0035F45DE5869CE57B15774A43DCA75999C417D528047109BEFE27F4C48",
-  loyaltyProgramId: "lp_1a2b3c4d5e6f7g8h9i0j1k2l3m",
+    "D576A4948E368C32E892332414128E50C8D2999F5D05C822288975140995B8F5",
+  loyaltyProgramId: "lp_01JSPMK0034KG89FTW2MRSG6XJ",
 };
