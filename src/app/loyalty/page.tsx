@@ -28,7 +28,7 @@ import { axiosInstance } from "@/utils/axios";
 import { appConfig } from "@/configs/appConfig";
 
 const LoyaltyPointsHistory = () => {
-  const [pointsData, setPointsData] = useState<LoyaltyPoints[]>([]);  
+  const [pointsData, setPointsData] = useState<LoyaltyPoints[]>([]);
   const [page, setPage] = useState({
     pageIndex: 0,
     pageSize: 10,
@@ -55,6 +55,33 @@ const LoyaltyPointsHistory = () => {
     discountedAmount: number;
     currency: string;
   } | null>(null);
+  const [tokenCookie, setTokenCookie] = useState<string | null>(null);
+
+  // Function to simulate fetching the token
+  const fetchToken = async () => {
+    const token = getTokenCookie();
+    return token;
+  };
+
+  useEffect(() => {
+    const checkToken = async () => {
+      const fetchedToken = await fetchToken();
+      setIsLoading(true);
+
+      if (fetchedToken) {
+        setTokenCookie(fetchedToken);
+        setIsLoading(false);
+        // Once token is found, trigger your API calls
+        fetchPointsHistory();
+        fetchStatistics();
+      } else {
+        // If no token, check again after a delay
+        setTimeout(checkToken, 2000); // Check every 2 seconds (adjust as needed)
+      }
+    };
+
+    checkToken();
+  }, []);
 
   useEffect(() => {
     if (redeemPointsRes?.discountedAmount && redeemPointsRes?.currency) {
@@ -63,46 +90,48 @@ const LoyaltyPointsHistory = () => {
   }, [redeemPointsRes]);
 
   const fetchPointsHistory = () => {
-    const token = getTokenCookie();
-
     // Fetch points history logic
-    setIsPointsLoading(true);
-    axiosInstance
-      .get(
-        `/v1/customers/${appConfig.userId}/loyalty-points?page=${
-          page.pageIndex + 1
-        }&limit=${page.pageSize}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      )
-      .then(({ data: response }) => {
-        setPointsData(response.data.points);
-      })
-      .finally(() => {
-        setIsPointsLoading(false); // Stop loading when done
-      });
+    if (tokenCookie) {
+      setIsPointsLoading(true);
+
+      axiosInstance
+        .get(
+          `/v1/customers/${appConfig.userId}/loyalty-points?page=${
+            page.pageIndex + 1
+          }&limit=${page.pageSize}`,
+          {
+            headers: { Authorization: `Bearer ${tokenCookie}` },
+          }
+        )
+        .then(({ data: response }) => {
+          setPointsData(response.data.points);
+        })
+        .finally(() => {
+          setIsPointsLoading(false); // Stop loading when done
+        });
+    }
   };
 
   useEffect(() => {
     fetchPointsHistory();
-  }, [page]);
+  }, [page, tokenCookie]);
 
   const fetchStatistics = async () => {
     // Fetching statistics data
-    setIsLoading(true);
-    const token = getTokenCookie();
+    if (tokenCookie) {
+      setIsLoading(true);
 
-    axiosInstance
-      .get(`/v1/customers/${appConfig.userId}/statistics`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then(({ data: response }) => {
-        setUserStats(response.data); // Set the statistics data
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+      axiosInstance
+        .get(`/v1/customers/${appConfig.userId}/statistics`, {
+          headers: { Authorization: `Bearer ${tokenCookie}` },
+        })
+        .then(({ data: response }) => {
+          setUserStats(response.data); // Set the statistics data
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
   };
 
   useEffect(() => {
@@ -113,7 +142,7 @@ const LoyaltyPointsHistory = () => {
 
     // Clear the interval on component unmount
     return () => clearInterval(intervalId);
-  }, []);
+  }, [tokenCookie]);
 
   useEffect(() => {
     if (pointsToRedeem && pointsToRedeem > 0) {

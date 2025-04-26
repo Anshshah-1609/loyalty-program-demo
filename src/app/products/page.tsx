@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { GoPlus } from "react-icons/go";
 import { TbMinus } from "react-icons/tb";
@@ -13,7 +13,31 @@ import { Loader } from "@/components/loader";
 
 const Products = () => {
   const [quantity, setQuantity] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [tokenCookie, setTokenCookie] = useState<string | null>(null);
+
+  // Function to simulate fetching the token
+  const fetchToken = async () => {
+    const token = getTokenCookie();
+    return token;
+  };
+
+  useEffect(() => {
+    const checkToken = async () => {
+      const fetchedToken = await fetchToken();
+      setIsLoading(true);
+
+      if (fetchedToken) {
+        setTokenCookie(fetchedToken);
+        setIsLoading(false);
+      } else {
+        // If no token, check again after a delay
+        setTimeout(checkToken, 2000); // Check every 2 seconds (adjust as needed)
+      }
+    };
+
+    checkToken();
+  }, []);
 
   const products = [
     {
@@ -43,40 +67,41 @@ const Products = () => {
 
     const totalAmount = product.price * quantity;
 
-    const token = getTokenCookie();
-    setLoading(true); // Start loading
+    setIsLoading(true); // Start loading
 
-    // API call to buy the product (example)
-    axiosInstance
-      .post(
-        "/v1/customers/loyalty-points",
-        {
-          userExternalId: appConfig.userId,
-          loyaltyProgramId: appConfig.loyaltyProgramId,
-          amount: totalAmount,
-          earningType: EarningRuleType.Redemption,
-          reference: product.id,
-          additionalInfo: `Purchased a product: ${product.name}`,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      )
-      .then(({ data: response }) => {
-        console.log(response?.data?.message);
-        successToast("Loyalty points added successfully.");
-      })
-      .catch((error) => {
-        errorToast(error?.message ?? "Something went wrong");
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    if (tokenCookie) {
+      // API call to buy the product (example)
+      axiosInstance
+        .post(
+          "/v1/customers/loyalty-points",
+          {
+            userExternalId: appConfig.userId,
+            loyaltyProgramId: appConfig.loyaltyProgramId,
+            amount: totalAmount,
+            earningType: EarningRuleType.Redemption,
+            reference: product.id,
+            additionalInfo: `Purchased a product: ${product.name}`,
+          },
+          {
+            headers: { Authorization: `Bearer ${tokenCookie}` },
+          }
+        )
+        .then(({ data: response }) => {
+          console.log(response?.data?.message);
+          successToast("Loyalty points added successfully.");
+        })
+        .catch((error) => {
+          errorToast(error?.message ?? "Something went wrong");
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
   };
 
   return (
     <section className="p-6">
-      {loading ? <Loader /> : null}
+      {isLoading ? <Loader /> : null}
       <h2 className="text-xl font-semibold mb-4">Products</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {products.map((product, index) => (
