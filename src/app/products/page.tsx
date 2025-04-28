@@ -103,8 +103,8 @@ const Products = () => {
   return (
     <section className="p-6">
       {isLoading ? <Loader /> : null}
-      <h2 className="text-xl font-semibold mb-4 ml-7">Products</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      <h2 className="text-xl font-semibold mb-4">Products</h2>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {products.map(({ id, name, image, price, currency }, index) => (
           <div
             className="max-w-sm mx-auto bg-white rounded-lg shadow-lg overflow-hidden text-black"
