@@ -45,6 +45,7 @@ const Products = () => {
       name: "Watch",
       price: 20,
       image: "/images/product-1.jpg",
+      currency: "KWD",
     },
   ];
 
@@ -102,24 +103,24 @@ const Products = () => {
   return (
     <section className="p-6">
       {isLoading ? <Loader /> : null}
-      <h2 className="text-xl font-semibold mb-4">Products</h2>
+      <h2 className="text-xl font-semibold mb-4 ml-7">Products</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {products.map((product, index) => (
+        {products.map(({ id, name, image, price, currency }, index) => (
           <div
             className="max-w-sm mx-auto bg-white rounded-lg shadow-lg overflow-hidden text-black"
             key={`product-${index}`}
           >
             <Image
               className="w-full h-60 object-cover"
-              src={product.image}
-              alt={product.name}
+              src={image}
+              alt={name}
               width={200}
               height={100}
             />
             <div className="p-4">
-              <h2 className="text-xl font-semibold mb-2">{product.name}</h2>
+              <h2 className="text-xl font-semibold mb-2">{name}</h2>
               <p className="text-gray-600 text-sm mb-4">
-                Price: ${product.price}
+                Price: {currency} {price}
               </p>
               <div className="flex items-center mb-4">
                 <button
@@ -137,10 +138,10 @@ const Products = () => {
                 </button>
               </div>
               <p className="text-lg font-semibold mb-4 text-black">
-                Total: ${product.price * quantity}
+                Total: {currency} {price * quantity}
               </p>
               <button
-                onClick={() => handleBuy(product.id)}
+                onClick={() => handleBuy(id)}
                 className="w-full py-2 bg-blue-500 text-white rounded-lg hover:cursor-pointer"
               >
                 Buy Now
